@@ -132,6 +132,12 @@ def date(pl, format='%Y-%m-%d', istime=False, local_time = True, utc_offset = 0,
 
 	:param str format:
 		strftime-style date format string
+	:param boolean local_time:
+		whether the time is local or offset
+	:param int utc_offset:
+		offset from UTC in hours
+	:param str tz_name:
+		for non-local time, the timezone name to display
 
 	Divider highlight group used: ``time:divider``.
 
