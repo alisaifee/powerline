@@ -5,7 +5,7 @@ from __future__ import absolute_import
 import os
 import sys
 
-from datetime import datetime
+from datetime import datetime, tzinfo, timedelta
 import socket
 from multiprocessing import cpu_count as _cpu_count
 
@@ -117,8 +117,17 @@ def cwd(pl, segment_info, dir_shorten_len=None, dir_limit_depth=None, use_path_s
 		ret[-1]['contents'] = ret[-1]['contents'][:-1]
 	return ret
 
+class TimeZoneOffset(tzinfo):
+	def __init__(self, offset_hours):
+		self.offset_hours = offset_hours
+		tzinfo.__init__(self)
 
-def date(pl, format='%Y-%m-%d', istime=False):
+	def utcoffset(self, dt):
+		return timedelta(hours = self.offset_hours)
+	def dst(self, dt):
+		return timedelta(0)
+
+def date(pl, format='%Y-%m-%d', istime=False, local_time = True, utc_offset = 0, tz_name = "UTC"):
 	'''Return the current date.
 
 	:param str format:
@@ -128,8 +137,13 @@ def date(pl, format='%Y-%m-%d', istime=False):
 
 	Highlight groups used: ``time`` or ``date``.
 	'''
+	if local_time:
+		contents = datetime.now().strftime(format)
+	else:
+		contents = "[%s] %s" % (tz_name, datetime.now(TimeZoneOffset(utc_offset)).strftime(format))
+
 	return [{
-		'contents': datetime.now().strftime(format),
+		'contents': contents,
 		'highlight_group': (['time'] if istime else []) + ['date'],
 		'divider_highlight_group': 'time:divider' if istime else None,
 	}]
